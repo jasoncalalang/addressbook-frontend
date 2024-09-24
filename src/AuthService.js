@@ -14,12 +14,10 @@ class AuthService {
         discoveryEndpoint: config.discoveryEndpoint,
       });
 
-      // Attempt to retrieve existing tokens from session storage
       const storedTokens = sessionStorage.getItem('appIdTokens');
       if (storedTokens) {
         this.tokens = JSON.parse(storedTokens);
       } else {
-        // Try silent signin to obtain tokens without user interaction
         this.tokens = await this.appID.signinSilent();
         this.storeTokens(this.tokens);
       }
@@ -40,9 +38,13 @@ class AuthService {
 
   async logout() {
     try {
-      await this.appID.signout();
-      this.tokens = null;
+      // Clear stored tokens
       sessionStorage.removeItem('appIdTokens');
+      this.tokens = null;
+
+      // Redirect to the App ID logout endpoint
+      const logoutUrl = `https://au-syd.appid.cloud.ibm.com/oauth/v4/0148eb09-a770-4ccd-9718-904ec6c01e5e/logout?client_id=${config.clientId}&redirect_uri=${config.redirectUri}`;
+      window.location.href = logoutUrl;
     } catch (e) {
       console.error('Failed to logout:', e);
     }
@@ -52,20 +54,12 @@ class AuthService {
     return this.tokens != null;
   }
 
-  getUserInfo() {
-    if (this.tokens) {
-      return this.tokens.idTokenPayload;
-    }
-    return null;
-  }
-
   async getAccessToken() {
     if (this.tokens) {
       const now = Math.floor(Date.now() / 1000);
       const expiration = this.tokens.accessTokenPayload.exp;
 
       if (now > expiration - 60) {
-        // Token is expired or about to expire, refresh it
         try {
           this.tokens = await this.appID.signinSilent();
           this.storeTokens(this.tokens);

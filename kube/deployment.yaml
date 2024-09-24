@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ab-frontend-deployment
+  labels:
+    app: ab-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ab-frontend
+  template:
+    metadata:
+      labels:
+        app: ab-frontend
+    spec:
+      containers:
+      - name: ab-frontend
+        image: jp.icr.io/jcc-dev/ab-frontend:1.2
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: icr  # Refers to the imagePullSecret for pulling the image

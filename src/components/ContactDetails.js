@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import authService from '../AuthService';  // Import your AuthService
+import axiosInstance from '../api/axiosInstance';
 
 function ContactDetails() {
   const [contact, setContact] = useState(null);
@@ -16,7 +16,7 @@ function ContactDetails() {
         }
 
         // Fetch the contact details with Authorization header
-        const response = await axios.get(`http://localhost:5000/contacts/${id}`, {
+        const response = await axiosInstance.get(`/contacts/${id}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,  // Inject the token here
           },
