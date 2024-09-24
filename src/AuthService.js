@@ -42,9 +42,7 @@ class AuthService {
       sessionStorage.removeItem('appIdTokens');
       this.tokens = null;
 
-      // Redirect to the App ID logout endpoint
-      const logoutUrl = `https://au-syd.appid.cloud.ibm.com/oauth/v4/0148eb09-a770-4ccd-9718-904ec6c01e5e/logout?client_id=${config.clientId}&redirect_uri=${config.redirectUri}`;
-      window.location.href = logoutUrl;
+      window.location.href = '/';
     } catch (e) {
       console.error('Failed to logout:', e);
     }

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: ab-frontend
-        image: jp.icr.io/jcc-dev/ab-frontend:1.2
+        image: jp.icr.io/jcc-dev/ab-frontend:2.3
         ports:
         - containerPort: 80
       imagePullSecrets:
