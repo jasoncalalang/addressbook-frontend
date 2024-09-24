@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import authService from '../AuthService';  // Import AuthService to get the token
+import authService from '../AuthService';
+import { Form, Button, Container, Alert } from 'react-bootstrap';  // Import React Bootstrap components
 
 function AddContactForm() {
   const [contact, setContact] = useState({
@@ -20,14 +21,14 @@ function AddContactForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const accessToken = await authService.getAccessToken();  // Get the access token
+      const accessToken = await authService.getAccessToken();
       if (!accessToken) {
         throw new Error('No access token available');
       }
 
       await axiosInstance.post('/contacts', contact, {
         headers: {
-          Authorization: `Bearer ${accessToken}`,  // Inject the token here
+          Authorization: `Bearer ${accessToken}`,
         },
       });
       navigate('/');
@@ -38,50 +39,57 @@ function AddContactForm() {
   };
 
   return (
-    <div>
+    <Container className="mt-4">
       <h2>Add Contact</h2>
-      {error && <p>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
+      {error && <Alert variant="danger">{error}</Alert>}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="formName">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
             type="text"
             name="name"
             value={contact.name}
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
+        </Form.Group>
+
+        <Form.Group controlId="formEmail" className="mt-3">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
             type="email"
             name="email"
             value={contact.email}
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <label>Phone:</label>
-          <input
+        </Form.Group>
+
+        <Form.Group controlId="formPhone" className="mt-3">
+          <Form.Label>Phone</Form.Label>
+          <Form.Control
             type="text"
             name="phone"
             value={contact.phone}
             onChange={handleChange}
           />
-        </div>
-        <div>
-          <label>Address:</label>
-          <textarea
+        </Form.Group>
+
+        <Form.Group controlId="formAddress" className="mt-3">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            as="textarea"
             name="address"
             value={contact.address}
             onChange={handleChange}
-          ></textarea>
-        </div>
-        <button type="submit">Add Contact</button>
-      </form>
-    </div>
+          />
+        </Form.Group>
+
+        <Button variant="primary" type="submit" className="mt-4">
+          Add Contact
+        </Button>
+      </Form>
+    </Container>
   );
 }
 

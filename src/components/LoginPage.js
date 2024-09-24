@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../AuthService';
+import { Container, Button, Alert } from 'react-bootstrap';  // Import React Bootstrap components
 
 function LoginPage({ onLogin }) {
+  const [error, setError] = useState(null);  // State to track login errors
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -12,14 +14,18 @@ function LoginPage({ onLogin }) {
       navigate('/');              // Redirect to the contacts page
     } catch (error) {
       console.error('Login failed:', error);
+      setError('Login failed. Please try again.');
     }
   };
 
   return (
-    <div>
+    <Container className="mt-5">
       <h2>Login</h2>
-      <button onClick={handleLogin}>Login with IBM App ID</button>
-    </div>
+      {error && <Alert variant="danger">{error}</Alert>}
+      <Button variant="primary" onClick={handleLogin}>
+        Login with IBM App ID
+      </Button>
+    </Container>
   );
 }
 

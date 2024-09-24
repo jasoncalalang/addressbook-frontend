@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import authService from '../AuthService';  // Import AuthService to get the token
+import authService from '../AuthService';
+import { Table, Button, Container, Alert } from 'react-bootstrap';  // Import React Bootstrap components
 
 function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -10,14 +11,14 @@ function ContactList() {
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const accessToken = await authService.getAccessToken();  // Get the access token
+        const accessToken = await authService.getAccessToken();
         if (!accessToken) {
           throw new Error('No access token available');
         }
 
         const response = await axiosInstance.get('/contacts', {
           headers: {
-            Authorization: `Bearer ${accessToken}`,  // Inject the token here
+            Authorization: `Bearer ${accessToken}`,
           },
         });
         setContacts(response.data);
@@ -32,14 +33,14 @@ function ContactList() {
 
   const deleteContact = async (id) => {
     try {
-      const accessToken = await authService.getAccessToken();  // Get the access token
+      const accessToken = await authService.getAccessToken();
       if (!accessToken) {
         throw new Error('No access token available');
       }
 
       await axiosInstance.delete(`/contacts/${id}`, {
         headers: {
-          Authorization: `Bearer ${accessToken}`,  // Inject the token here
+          Authorization: `Bearer ${accessToken}`,
         },
       });
       setContacts(contacts.filter((contact) => contact._id !== id));
@@ -50,17 +51,25 @@ function ContactList() {
   };
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <Container className="mt-4">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
   }
 
   if (!contacts.length) {
-    return <div>No contacts available.</div>;
+    return (
+      <Container className="mt-4">
+        <Alert variant="info">No contacts available.</Alert>
+      </Container>
+    );
   }
 
   return (
-    <div>
+    <Container className="mt-4">
       <h2>Contacts</h2>
-      <table>
+      <Table striped bordered hover>
         <thead>
           <tr>
             <th>Name</th>
@@ -80,14 +89,14 @@ function ContactList() {
               <td>{contact.phone}</td>
               <td>{contact.address}</td>
               <td>
-                <Link to={`/edit/${contact._id}`}>Edit</Link> |{' '}
-                <button onClick={() => deleteContact(contact._id)}>Delete</button>
+                <Link to={`/edit/${contact._id}`} className="btn btn-primary btn-sm me-2">Edit</Link>
+                <Button variant="danger" size="sm" onClick={() => deleteContact(contact._id)}>Delete</Button>
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+      </Table>
+    </Container>
   );
 }
 
