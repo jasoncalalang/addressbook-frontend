@@ -1,21 +1,34 @@
-// src/components/ContactDetails.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import authService from '../AuthService';  // Import your AuthService
 
 function ContactDetails() {
   const [contact, setContact] = useState(null);
   const { id } = useParams();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/contacts/${id}`)
-      .then((response) => {
+    const fetchContactDetails = async () => {
+      try {
+        const accessToken = await authService.getAccessToken();  // Get the access token
+        if (!accessToken) {
+          throw new Error('No access token available');
+        }
+
+        // Fetch the contact details with Authorization header
+        const response = await axios.get(`http://localhost:5000/contacts/${id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,  // Inject the token here
+          },
+        });
+        
         setContact(response.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching contact details:', error);
-      });
+      }
+    };
+
+    fetchContactDetails();
   }, [id]);
 
   if (!contact) {
@@ -39,4 +52,3 @@ function ContactDetails() {
 }
 
 export default ContactDetails;
-

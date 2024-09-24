@@ -7,9 +7,9 @@ function LoginPage({ onLogin }) {
 
   const handleLogin = async () => {
     try {
-      await authService.login();
-      onLogin();
-      navigate('/');
+      await authService.login();  // Calls login to generate tokens
+      onLogin();                  // Update the app state (set user as logged in)
+      navigate('/');              // Redirect to the contacts page
     } catch (error) {
       console.error('Login failed:', error);
     }

@@ -1,92 +1,108 @@
-// src/components/EditContactForm.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
+import authService from '../AuthService';  // Import AuthService to get the token
 
 function EditContactForm() {
+  const { id } = useParams();
   const [contact, setContact] = useState({
     name: '',
     email: '',
     phone: '',
     address: '',
   });
-  const { id } = useParams();
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/contacts/${id}`)
-      .then((response) => {
+    const fetchContact = async () => {
+      try {
+        const accessToken = await authService.getAccessToken();  // Get the access token
+        if (!accessToken) {
+          throw new Error('No access token available');
+        }
+
+        const response = await axiosInstance.get(`/contacts/${id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,  // Inject the token here
+          },
+        });
         setContact(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching contact:', error);
-      });
+      } catch (error) {
+        console.error('Error fetching contact details:', error);
+        setError('Failed to fetch contact details.');
+      }
+    };
+
+    fetchContact();
   }, [id]);
 
   const handleChange = (e) => {
     setContact({ ...contact, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const accessToken = await authService.getAccessToken();  // Get the access token
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
 
-    axios
-      .put(`http://localhost:5000/contacts/${id}`, contact)
-      .then(() => {
-        navigate('/');
-      })
-      .catch((error) => {
-        console.error('Error updating contact:', error);
+      await axiosInstance.put(`/contacts/${id}`, contact, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,  // Inject the token here
+        },
       });
+      navigate('/');
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      setError('Failed to update contact.');
+    }
   };
 
   return (
     <div>
       <h2>Edit Contact</h2>
+      {error && <p>{error}</p>}
       <form onSubmit={handleSubmit}>
-        {/* Name */}
         <div>
           <label>Name:</label>
           <input
             type="text"
             name="name"
-            value={contact.name || ''}
+            value={contact.name}
             onChange={handleChange}
             required
           />
         </div>
-        {/* Email */}
         <div>
           <label>Email:</label>
           <input
             type="email"
             name="email"
-            value={contact.email || ''}
+            value={contact.email}
             onChange={handleChange}
             required
           />
         </div>
-        {/* Phone */}
         <div>
           <label>Phone:</label>
           <input
             type="text"
             name="phone"
-            value={contact.phone || ''}
+            value={contact.phone}
             onChange={handleChange}
           />
         </div>
-        {/* Address */}
         <div>
           <label>Address:</label>
           <textarea
             name="address"
-            value={contact.address || ''}
+            value={contact.address}
             onChange={handleChange}
           ></textarea>
         </div>
-        {/* Submit */}
         <button type="submit">Update Contact</button>
       </form>
     </div>
@@ -94,4 +110,3 @@ function EditContactForm() {
 }
 
 export default EditContactForm;
-

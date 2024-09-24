@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
+import authService from '../AuthService';  // Import AuthService to get the token
 
 function AddContactForm() {
   const [contact, setContact] = useState({
@@ -9,7 +10,7 @@ function AddContactForm() {
     phone: '',
     address: '',
   });
-
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,18 +19,28 @@ function AddContactForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      await axiosInstance.post('/contacts', contact);
+      const accessToken = await authService.getAccessToken();  // Get the access token
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+
+      await axiosInstance.post('/contacts', contact, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,  // Inject the token here
+        },
+      });
       navigate('/');
     } catch (error) {
       console.error('Error adding contact:', error);
+      setError('Failed to add contact.');
     }
   };
 
   return (
     <div>
       <h2>Add Contact</h2>
+      {error && <p>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
           <label>Name:</label>

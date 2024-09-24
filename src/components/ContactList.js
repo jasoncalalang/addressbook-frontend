@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
+import authService from '../AuthService';  // Import AuthService to get the token
 
 function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -9,7 +10,16 @@ function ContactList() {
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const response = await axiosInstance.get('/contacts');
+        const accessToken = await authService.getAccessToken();  // Get the access token
+        if (!accessToken) {
+          throw new Error('No access token available');
+        }
+
+        const response = await axiosInstance.get('/contacts', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,  // Inject the token here
+          },
+        });
         setContacts(response.data);
       } catch (err) {
         console.error('Error fetching contacts:', err);
@@ -22,7 +32,16 @@ function ContactList() {
 
   const deleteContact = async (id) => {
     try {
-      await axiosInstance.delete(`/contacts/${id}`);
+      const accessToken = await authService.getAccessToken();  // Get the access token
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+
+      await axiosInstance.delete(`/contacts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,  // Inject the token here
+        },
+      });
       setContacts(contacts.filter((contact) => contact._id !== id));
     } catch (err) {
       console.error('Error deleting contact:', err);
