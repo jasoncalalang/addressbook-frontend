@@ -3,7 +3,7 @@ import authService from '../AuthService';
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000',  // Backend API URL
+  baseURL: 'https://ab-api.devcluster-985078-2d3fb824a69ea5c326974e87bbe5c52a-0000.jp-tok.containers.appdomain.cloud',  // Backend API URL
 });
 
 // Intercept requests to add the Authorization header
