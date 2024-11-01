@@ -10,7 +10,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL('http://localhost:3000');
+  mainWindow.loadURL('https://addressbook.devcluster-985078-2d3fb824a69ea5c326974e87bbe5c52a-0000.jp-tok.containers.appdomain.cloud');
 }
 
 app.on('ready', createWindow);
