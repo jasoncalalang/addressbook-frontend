@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import authService from '../AuthService';
-import { Table, Button, Container, Alert } from 'react-bootstrap';  // Import React Bootstrap components
+import { Table, Button, Container, Alert, Spinner } from 'react-bootstrap';  
 
 function ContactList() {
   const [contacts, setContacts] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -25,6 +26,8 @@ function ContactList() {
       } catch (err) {
         console.error('Error fetching contacts:', err);
         setError('Failed to fetch contacts.');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -49,6 +52,16 @@ function ContactList() {
       setError('Failed to delete contact.');
     }
   };
+
+  if (loading) {
+    return (
+      <Container className="mt-4">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </Container>
+    );
+  }
 
   if (error) {
     return (
